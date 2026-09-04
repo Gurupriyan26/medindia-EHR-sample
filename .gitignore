@@ -1,0 +1,29 @@
+﻿# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build outputs
+client/dist/
+server/dist/
+
+# Environment variables (never commit secrets)
+.env
+server/.env
+client/.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# TypeScript cache
+*.tsbuildinfo

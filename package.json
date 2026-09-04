@@ -1,0 +1,35 @@
+{
+  "name": "medindia-ehr-platform",
+  "version": "1.0.0",
+  "description": "Mini Electronic Health Record (EHR) & ABDM Prototype Platform",
+  "main": "server/dist/server.js",
+  "scripts": {
+    "install-all": "npm --prefix client install && npm --prefix server install",
+    "dev": "concurrently --kill-others-on-fail -n SERVER,CLIENT -c bgBlue.bold,bgGreen.bold \"npm run server\" \"npm run client\"",
+    "client": "npm --prefix client run dev",
+    "server": "npm --prefix server run dev",
+    "seed": "npm --prefix server run seed",
+    "build:client": "npm --prefix client run build",
+    "build:server": "npm --prefix server run build",
+    "build": "npm run build:server && npm run build:client",
+    "start": "node server/dist/server.js"
+  },
+  "keywords": [
+    "ehr",
+    "emr",
+    "healthcare",
+    "abdm",
+    "abha",
+    "react",
+    "typescript",
+    "nodejs",
+    "express",
+    "mongodb",
+    "ai-summary"
+  ],
+  "author": "Gurupriyan",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}

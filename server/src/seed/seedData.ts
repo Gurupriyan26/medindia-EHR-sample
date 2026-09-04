@@ -1,0 +1,400 @@
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import { connectDB } from '../config/db.js';
+import { PatientModel } from '../models/Patient.js';
+import { VisitModel } from '../models/Visit.js';
+import { LabReportModel } from '../models/LabReport.js';
+import { ConsentModel } from '../models/Consent.js';
+import { AppointmentModel } from '../models/Appointment.js';
+
+dotenv.config();
+
+const SEED_PATIENTS = [
+  {
+    name: 'Aarav Sharma',
+    age: 48,
+    gender: 'Male',
+    phone: '+91 98765 43210',
+    email: 'aarav.sharma@example.com',
+    bloodGroup: 'B+',
+    abhaId: '91-4567-8901-2345',
+    abhaAddress: 'aarav.sharma@abdm',
+    address: 'Flat 402, Green Meadows Apt, Indiranagar, Bengaluru, Karnataka - 560038',
+    emergencyContact: {
+      name: 'Meera Sharma',
+      relationship: 'Spouse',
+      phone: '+91 98765 43211',
+    },
+    allergies: [
+      {
+        substance: 'Penicillin & Amoxicillin',
+        severity: 'Severe',
+        reaction: 'Anaphylactic reaction & severe urticaria',
+        recordedDate: '2023-04-12',
+      },
+      {
+        substance: 'Iodinated Radiocontrast Media',
+        severity: 'Moderate',
+        reaction: 'Cutaneous flushing and localized pruritus',
+        recordedDate: '2024-01-15',
+      },
+    ],
+    medicalHistory: [
+      {
+        condition: 'Type 2 Diabetes Mellitus',
+        diagnosedYear: '2019',
+        status: 'Active',
+        notes: 'Managed with oral hypoglycemics and lifestyle modifications',
+      },
+      {
+        condition: 'Essential Hypertension',
+        diagnosedYear: '2021',
+        status: 'Controlled',
+        notes: 'Well-controlled with ARB (Telmisartan 40mg)',
+      },
+    ],
+    registeredDate: '2023-01-10',
+    lastVisitDate: '2026-08-28',
+    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+  },
+  {
+    name: 'Priya Patel',
+    age: 34,
+    gender: 'Female',
+    phone: '+91 97654 32109',
+    email: 'priya.patel@example.com',
+    bloodGroup: 'O+',
+    abhaId: '92-8921-3456-7890',
+    abhaAddress: 'priya.patel@abdm',
+    address: 'B-12, Shanti Niketan, Ellisbridge, Ahmedabad, Gujarat - 380006',
+    emergencyContact: {
+      name: 'Kunal Patel',
+      relationship: 'Brother',
+      phone: '+91 97654 32108',
+    },
+    allergies: [
+      {
+        substance: 'Sulfonamides (Sulfa drugs)',
+        severity: 'Moderate',
+        reaction: 'Maculopapular rash on trunk and arms',
+        recordedDate: '2022-09-18',
+      },
+    ],
+    medicalHistory: [
+      {
+        condition: 'Primary Hypothyroidism',
+        diagnosedYear: '2020',
+        status: 'Controlled',
+        notes: 'Daily Levothyroxine 50 mcg on empty stomach',
+      },
+      {
+        condition: 'Iron Deficiency Anemia',
+        diagnosedYear: '2024',
+        status: 'In Remission',
+        notes: 'Completed 3-month oral ferrous ascorbate course',
+      },
+    ],
+    registeredDate: '2023-05-14',
+    lastVisitDate: '2026-08-30',
+    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+  },
+  {
+    name: 'Rajesh Iyer',
+    age: 62,
+    gender: 'Male',
+    phone: '+91 96543 21098',
+    email: 'rajesh.iyer@example.com',
+    bloodGroup: 'A+',
+    abhaId: '91-3344-5566-7788',
+    abhaAddress: 'rajesh.iyer@abdm',
+    address: 'Plot 88, 4th Main, Anna Nagar West, Chennai, Tamil Nadu - 600040',
+    emergencyContact: {
+      name: 'Lakshmi Iyer',
+      relationship: 'Spouse',
+      phone: '+91 96543 21097',
+    },
+    allergies: [
+      {
+        substance: 'Aspirin & NSAIDs',
+        severity: 'Severe',
+        reaction: 'Gastric irritation and bronchospasm episodes',
+        recordedDate: '2021-11-03',
+      },
+    ],
+    medicalHistory: [
+      {
+        condition: 'Coronary Artery Disease (CAD - Post PTCA)',
+        diagnosedYear: '2022',
+        status: 'Active',
+        notes: 'Stent placed in LAD; regular cardiology reviews',
+      },
+      {
+        condition: 'Mixed Dyslipidemia',
+        diagnosedYear: '2018',
+        status: 'Controlled',
+        notes: 'Atorvastatin 20mg at bedtime',
+      },
+      {
+        condition: 'Stage 1 Hypertension',
+        diagnosedYear: '2016',
+        status: 'Controlled',
+        notes: 'Amlodipine 5mg OD',
+      },
+    ],
+    registeredDate: '2022-11-20',
+    lastVisitDate: '2026-09-02',
+    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+  },
+];
+
+async function seedDatabase() {
+  try {
+    const connected = await connectDB();
+    if (!connected) {
+      console.log('Skipping MongoDB seed as database is offline.');
+      process.exit(0);
+    }
+
+    console.log('🧹 Clearing existing collections...');
+    await PatientModel.deleteMany({});
+    await VisitModel.deleteMany({});
+    await LabReportModel.deleteMany({});
+    await ConsentModel.deleteMany({});
+    await AppointmentModel.deleteMany({});
+
+    console.log('🌱 Seeding Patients...');
+    const insertedPatients = await PatientModel.insertMany(SEED_PATIENTS);
+    const aarav = insertedPatients[0];
+    const priya = insertedPatients[1];
+    const rajesh = insertedPatients[2];
+
+    console.log('🌱 Seeding Visits & Consultations...');
+    await VisitModel.insertMany([
+      {
+        patientId: aarav._id,
+        patientName: aarav.name,
+        doctorName: 'Dr. Sarah Rao, MD',
+        doctorSpecialty: 'Cardiologist & General Physician',
+        clinicOrHospital: 'MedIndia Apex Care Clinic, Bengaluru',
+        date: '2026-08-28',
+        visitType: 'Follow-up',
+        chiefComplaint: 'Quarterly diabetic checkup, reports mild morning fatigue',
+        symptoms: ['Mild fatigue', 'Post-meal heaviness'],
+        vitals: {
+          bloodPressure: '128/82 mmHg',
+          heartRate: 74,
+          temperature: 98.4,
+          spO2: 99,
+          respiratoryRate: 16,
+          weight: 76.5,
+          height: 174,
+          bmi: 25.3,
+        },
+        clinicalExamination: 'Chest clear bilaterally, S1 S2 heard normal. Pedal edema absent.',
+        diagnosis: 'Type 2 Diabetes Mellitus with Stage 1 Hypertension',
+        icd10Code: 'E11.69',
+        clinicalNotes: 'HbA1c has drifted slightly to 7.8%. Adjusted Metformin dosage to 1000mg SR.',
+        prescriptions: [
+          {
+            medicineName: 'Metformin Sustained Release',
+            dosage: '1000 mg',
+            frequency: '1-0-1 (Morning & Night)',
+            timing: 'After Food',
+            duration: '90 Days',
+            instructions: 'Take immediately after principal meals',
+          },
+          {
+            medicineName: 'Telmisartan Tablets',
+            dosage: '40 mg',
+            frequency: '1-0-0 (Morning)',
+            timing: 'Before Food',
+            duration: '90 Days',
+            instructions: 'Take every morning at the same time',
+          },
+        ],
+        orderedLabTests: ['HbA1c & Fasting Plasma Glucose', 'Serum Creatinine & eGFR'],
+        followUpDate: '2026-11-28',
+        status: 'Completed',
+      },
+      {
+        patientId: rajesh._id,
+        patientName: rajesh.name,
+        doctorName: 'Dr. Sarah Rao, MD',
+        doctorSpecialty: 'Cardiologist',
+        clinicOrHospital: 'MedIndia Apex Care Clinic, Bengaluru',
+        date: '2026-09-02',
+        visitType: 'Specialist Consultation',
+        chiefComplaint: 'Routine post-PTCA cardiology evaluation. Good exercise tolerance.',
+        symptoms: [],
+        vitals: {
+          bloodPressure: '122/78 mmHg',
+          heartRate: 68,
+          temperature: 98.4,
+          spO2: 99,
+          weight: 69.0,
+          height: 168,
+          bmi: 24.4,
+        },
+        diagnosis: 'Atherosclerotic Heart Disease of Native Coronary Artery (Post-PCI)',
+        icd10Code: 'I25.10',
+        clinicalNotes: 'Stable cardiac status. ECG normal sinus rhythm. NOTE: Patient is allergic to Aspirin; maintaining on Clopidogrel.',
+        prescriptions: [
+          {
+            medicineName: 'Clopidogrel (Plavix)',
+            dosage: '75 mg',
+            frequency: '0-1-0 (Noon)',
+            timing: 'After Food',
+            duration: '180 Days',
+            instructions: 'Antiplatelet therapy - Note: Patient allergic to Aspirin!',
+          },
+          {
+            medicineName: 'Atorvastatin Tablets',
+            dosage: '20 mg',
+            frequency: '0-0-1 (Night)',
+            timing: 'After Food',
+            duration: '180 Days',
+            instructions: 'Take at bedtime',
+          },
+        ],
+        orderedLabTests: ['12-Lead Electrocardiogram (ECG)', 'Lipid Profile'],
+        followUpDate: '2027-03-02',
+        status: 'Completed',
+      },
+    ]);
+
+    console.log('🌱 Seeding Lab Reports...');
+    await LabReportModel.insertMany([
+      {
+        patientId: aarav._id,
+        patientName: aarav.name,
+        testName: 'Glycated Hemoglobin (HbA1c) & Fasting Plasma Glucose',
+        category: 'Biochemistry',
+        orderedByDoctor: 'Dr. Sarah Rao, MD',
+        labName: 'MedIndia Central Diagnostics',
+        sampleCollectionDate: '2026-08-28',
+        reportDate: '2026-08-29',
+        parameters: [
+          {
+            name: 'HbA1c',
+            value: '7.8',
+            unit: '%',
+            referenceRange: '< 5.7 (Normal), >=6.5 (Diabetes)',
+            isAbnormal: true,
+          },
+          {
+            name: 'Fasting Blood Glucose',
+            value: '142',
+            unit: 'mg/dL',
+            referenceRange: '70 - 99',
+            isAbnormal: true,
+          },
+        ],
+        overallResult: 'Elevated HbA1c (7.8%) indicating suboptimally controlled Type 2 Diabetes.',
+        status: 'Abnormal',
+        remarks: 'Recommend pharmacological titration.',
+      },
+      {
+        patientId: rajesh._id,
+        patientName: rajesh.name,
+        testName: 'Comprehensive Lipid Profile',
+        category: 'Biochemistry',
+        orderedByDoctor: 'Dr. Sarah Rao, MD',
+        labName: 'Apex Heart Diagnostics',
+        sampleCollectionDate: '2026-09-01',
+        reportDate: '2026-09-02',
+        parameters: [
+          {
+            name: 'LDL Cholesterol',
+            value: '64',
+            unit: 'mg/dL',
+            referenceRange: '< 70 (Target for CAD)',
+            isAbnormal: false,
+          },
+          {
+            name: 'HDL Cholesterol',
+            value: '46',
+            unit: 'mg/dL',
+            referenceRange: '> 40',
+            isAbnormal: false,
+          },
+        ],
+        overallResult: 'Optimal lipid control achieved on Atorvastatin 20mg.',
+        status: 'Normal',
+      },
+    ]);
+
+    console.log('🌱 Seeding Consents...');
+    await ConsentModel.insertMany([
+      {
+        patientId: aarav._id,
+        patientName: aarav.name,
+        patientAbhaId: aarav.abhaId,
+        requesterName: 'Dr. Sarah Rao (MedIndia Apex Care)',
+        requesterType: 'Doctor',
+        purpose: 'Care Management',
+        dataTypes: ['EHR / Consultations', 'Prescriptions', 'Diagnostic Lab Reports'],
+        permissionMode: 'VIEW',
+        dateFrom: '2026-01-01',
+        dateTo: '2027-01-01',
+        expiryDate: '2027-01-01',
+        status: 'GRANTED',
+        grantedAt: new Date().toISOString(),
+      },
+      {
+        patientId: aarav._id,
+        patientName: aarav.name,
+        patientAbhaId: aarav.abhaId,
+        requesterName: 'Apollo Tele-Specialty Network (HIU)',
+        requesterType: 'HIU',
+        purpose: 'Second Opinion',
+        dataTypes: ['Diagnostic Lab Reports'],
+        permissionMode: 'VIEW',
+        dateFrom: '2026-08-01',
+        dateTo: '2026-09-30',
+        expiryDate: '2026-09-30',
+        status: 'GRANTED',
+        grantedAt: new Date().toISOString(),
+      },
+    ]);
+
+    console.log('🌱 Seeding Appointments...');
+    await AppointmentModel.insertMany([
+      {
+        patientId: aarav._id,
+        patientName: aarav.name,
+        patientAge: aarav.age,
+        patientGender: aarav.gender,
+        doctorName: 'Dr. Sarah Rao',
+        specialty: 'Cardiologist & General Physician',
+        date: '2026-09-05',
+        timeSlot: '09:30 AM',
+        type: 'In-Person Consultation',
+        status: 'In-Progress',
+        tokenNumber: 1,
+        reason: 'Diabetic routine follow-up & HbA1c review',
+      },
+      {
+        patientId: rajesh._id,
+        patientName: rajesh.name,
+        patientAge: rajesh.age,
+        patientGender: rajesh.gender,
+        doctorName: 'Dr. Sarah Rao',
+        specialty: 'Cardiologist & General Physician',
+        date: '2026-09-05',
+        timeSlot: '10:15 AM',
+        type: 'In-Person Consultation',
+        status: 'Waiting',
+        tokenNumber: 2,
+        reason: 'Post-PTCA cardiac checkup & ECG review',
+      },
+    ]);
+
+    console.log('✅ Database seeded successfully with realistic healthcare records!');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Seeding error:', error);
+    process.exit(1);
+  }
+}
+
+seedDatabase();
