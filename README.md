@@ -42,7 +42,87 @@ That's it. No `.env` setup, no database, no extra terminals.
 
 ---
 
-## 📑 Table of Contents
+## 🗂 Project Structure
+
+```
+medindia-EHR-sample/
+│
+├── client/                        # React + Vite + TypeScript frontend
+│   └── src/
+│       ├── components/
+│       │   ├── dashboard/         # Dashboard metrics, queue, recent patients
+│       │   ├── patients/          # Patient list, add/edit form
+│       │   ├── ehr/               # EHR profile, clinical timeline
+│       │   ├── doctor/            # Doctor workstation, SOAP notes
+│       │   ├── labs/              # Lab reports with abnormal detection
+│       │   ├── appointments/      # Appointment queue manager
+│       │   ├── consent/           # ABDM consent hub
+│       │   ├── abdm/              # ABDM workflow visualizer
+│       │   ├── ai/                # AI clinical summary modal
+│       │   ├── settings/          # Settings page
+│       │   ├── layout/            # Sidebar, Navbar
+│       │   └── common/            # Reusable: Modal, Badge, Toast
+│       ├── context/               # Global app state (AppContext)
+│       ├── services/              # API calls + LocalStorage fallback
+│       ├── data/                  # Mock patient dataset (7 patients)
+│       └── types/                 # TypeScript interfaces
+│
+├── server/                        # Node.js + Express REST API backend
+│   └── src/
+│       ├── models/                # Mongoose schemas (Patient, Visit, Lab, Consent, Appointment)
+│       ├── controllers/           # Request handlers for each entity
+│       ├── routes/                # Express route definitions
+│       ├── services/              # AI Clinical Summary NLP engine
+│       ├── config/                # MongoDB connection
+│       └── seed/                  # DB seeder with realistic Indian patient data
+│
+├── package.json                   # Root orchestrator (postinstall auto-installs all)
+└── README.md
+```
+
+---
+
+## ✅ Requirements Checklist
+
+> All requirements from the assignment have been implemented:
+
+### Tech Stack
+| Requirement | Status | Implementation |
+|-------------|--------|---------------|
+| React + Vite | ✅ Done | `client/` — Vite 5, React 18 |
+| TypeScript | ✅ Done | All files `.tsx` / `.ts` with strict typing |
+| Tailwind CSS | ✅ Done | `client/tailwind.config.js` |
+| Node.js + Express backend | ✅ Done | `server/src/server.ts` |
+| MongoDB database | ✅ Done | Mongoose schemas in `server/src/models/` |
+| REST APIs | ✅ Done | 6 route files in `server/src/routes/` |
+| Modular architecture | ✅ Done | Separate controllers, models, routes, services |
+
+### Core Features
+| Requirement | Status | File |
+|-------------|--------|------|
+| **Dashboard** — Total patients, consultations, pending reports | ✅ Done | `client/src/components/dashboard/DashboardView.tsx` |
+| **Dashboard** — Recent patients, recent activity | ✅ Done | `client/src/components/dashboard/RecentPatientsList.tsx` |
+| **Patient list** with search | ✅ Done | `client/src/components/patients/PatientList.tsx` |
+| **Add patient** form | ✅ Done | `client/src/components/patients/PatientFormModal.tsx` |
+| **Edit patient** | ✅ Done | `PatientFormModal.tsx` (edit mode) |
+| **View patient** | ✅ Done | `client/src/components/ehr/PatientEHRProfile.tsx` |
+| Patient fields: Name, Age, Gender, Phone, Blood Group | ✅ Done | `server/src/models/Patient.ts` |
+| **ABHA ID** (demo field) | ✅ Done | Patient schema + EHR Profile display |
+| **Allergies** | ✅ Done | Allergy list in patient schema + EHR Profile |
+| **Medical history** | ✅ Done | Medical history in schema + EHR Profile |
+| **Patient EHR Profile** — Demographics, ABHA ID | ✅ Done | `PatientEHRProfile.tsx` |
+| **Current medications** | ✅ Done | Extracted from visit prescriptions |
+| **Previous consultations** | ✅ Done | `client/src/components/ehr/ClinicalTimeline.tsx` |
+| **Doctor Workstation** — SOAP notes | ✅ Done | `client/src/components/doctor/DoctorConsultationRoom.tsx` |
+| **Lab Reports** | ✅ Done | `client/src/components/labs/LabReportsManager.tsx` |
+| **Appointments** | ✅ Done | `client/src/components/appointments/AppointmentsManager.tsx` |
+| **Consent Management** (ABDM) | ✅ Done | `client/src/components/consent/ConsentManager.tsx` |
+| **ABDM Workflow** visualizer | ✅ Done | `client/src/components/abdm/AbdmWorkflowVisualizer.tsx` |
+| **AI Clinical Summary** | ✅ Done | `server/src/services/aiSummaryService.ts` |
+
+---
+
+
 1. [Project Purpose & Clinical Overview](#1-project-purpose--clinical-overview)
 2. [Key Core Features](#2-key-core-features)
 3. [System Architecture](#3-system-architecture)
