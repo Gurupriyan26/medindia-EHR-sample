@@ -1,4 +1,4 @@
-# MedIndia EHR — Next-Generation Mini Electronic Health Record & ABDM Platform
+# MedIndia EHR — Mini Electronic Health Record & ABDM Platform
 
 [![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4.5-blue.svg)](https://www.typescriptlang.org/)
@@ -6,9 +6,39 @@
 [![Node.js](https://img.shields.io/badge/Node.js-Express-green.svg)](https://nodejs.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-brightgreen.svg)](https://www.mongodb.com/)
 [![ABDM](https://img.shields.io/badge/ABDM-Sandbox_Prototype-orange.svg)](https://abdm.gov.in/)
-[![AI Clinical Engine](https://img.shields.io/badge/AI-Clinical_Summarization-purple.svg)](#7-ai--llm-clinical-summarization-feature)
 
-A modern, production-grade **Mini Electronic Health Record (EHR)** and **Ayushman Bharat Digital Mission (ABDM)** Health Information Exchange prototype web application built for healthcare interviews and clinical workflow demonstrations.
+> **Developed by**: Gurupriyan K — Full-Stack Developer & AI/ML Engineer
+
+A modern, production-grade **Mini Electronic Health Record (EHR)** and **Ayushman Bharat Digital Mission (ABDM)** prototype built with React, TypeScript, Node.js, Express, and MongoDB.
+
+---
+
+## ⚡ Quick Start (2 Commands — No Database Required)
+
+> **MongoDB is optional.** The app works fully out of the box with pre-loaded patient data. No setup needed.
+
+```bash
+# Step 1 — Clone the repository
+git clone https://github.com/Gurupriyan26/medindia-EHR-sample.git
+cd medindia-EHR-sample
+
+# Step 2 — Install all dependencies (root + client + server — automatic)
+npm install
+
+# Step 3 — Start the app (frontend + backend together)
+npm run dev
+```
+
+**Open your browser at: http://localhost:5173**
+
+That's it. No `.env` setup, no database, no extra terminals.
+
+| Service | URL |
+|---------|-----|
+| Frontend (React) | http://localhost:5173 |
+| Backend API | http://localhost:5000/api/health |
+
+> The app comes pre-loaded with **7 realistic Indian patient records** including full EHR history, lab reports, ABDM consents, and appointments.
 
 ---
 
@@ -276,47 +306,60 @@ medindia_ehr
 ## 11. How to Run the Project
 
 ### Prerequisites
-- Node.js (v18.0.0 or higher)
-- npm (v9.0.0 or higher)
-- MongoDB *(Optional — the platform automatically uses zero-config local storage if MongoDB is not running)*
+- **Node.js v18+** — Download from https://nodejs.org
+- **npm v9+** — Comes with Node.js
+- **MongoDB** — *Completely optional.* App runs fully without it.
 
 ---
 
-### Option A: Quick Start (Frontend Standalone Mode)
-The application is pre-configured with a rich seed dataset and runs immediately:
+### Option A: Standard Setup (Recommended)
 
 ```bash
-# 1. Install frontend dependencies
-cd client
+# Clone
+git clone https://github.com/Gurupriyan26/medindia-EHR-sample.git
+cd medindia-EHR-sample
+
+# Install everything (client + server installs automatically via postinstall)
 npm install
 
-# 2. Start Vite development server
+# Run both frontend and backend together
 npm run dev
 ```
 
-Open your browser at: **`http://localhost:3000`**
+- Frontend: **http://localhost:5173**
+- API: **http://localhost:5000/api/health**
 
 ---
 
-### Option B: Full-Stack Mode (React + Express + MongoDB)
+### Option B: With MongoDB (Full Persistent Storage)
 
 ```bash
-# 1. Install all dependencies from root
-npm run install-all
+# 1. Install and start MongoDB Community from https://mongodb.com
 
-# 2. Start the backend server (Terminal 1)
-cd server
-npm run dev
-# Server runs on http://localhost:5000
+# 2. Clone and install
+git clone https://github.com/Gurupriyan26/medindia-EHR-sample.git
+cd medindia-EHR-sample
+npm install
 
-# 3. Seed MongoDB with realistic sample patients (Optional)
+# 3. Seed the database with sample patient data
 npm run seed
 
-# 4. Start the frontend client (Terminal 2)
-cd client
+# 4. Start the full stack
 npm run dev
-# Client runs on http://localhost:3000
 ```
+
+---
+
+### Available Scripts
+
+| Command | What it does |
+|---------|-------------|
+| `npm install` | Installs root + client + server dependencies |
+| `npm run dev` | Starts both frontend (5173) and backend (5000) |
+| `npm run client` | Start only the React frontend |
+| `npm run server` | Start only the Express backend |
+| `npm run seed` | Seed MongoDB with sample data |
+| `npm run build` | Build both for production |
 
 ---
 
