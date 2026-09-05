@@ -52,13 +52,16 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-// Start Server
+// Start Server (local only — Vercel uses serverless, no app.listen needed)
 async function startServer() {
   await connectDB();
-  app.listen(PORT, () => {
-    console.log(`🚀 MedIndia EHR API Server running on port ${PORT}`);
-    console.log(`📊 Health Endpoint: http://localhost:${PORT}/api/health`);
-  });
+  if (!process.env.VERCEL) {
+    app.listen(Number(PORT), '0.0.0.0', () => {
+      console.log(`🚀 MedIndia EHR API Server running on port ${PORT}`);
+      console.log(`📊 Health Endpoint: http://localhost:${PORT}/api/health`);
+      console.log(`🌐 Network Access:  http://10.205.178.139:${PORT}/api/health`);
+    });
+  }
 }
 
 startServer();
