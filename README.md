@@ -22,8 +22,9 @@ A modern, production-grade **Mini Electronic Health Record (EHR)** and **Ayushma
 git clone https://github.com/Gurupriyan26/medindia-EHR-sample.git
 cd medindia-EHR-sample
 
-# Step 2 — Install all dependencies (root + client + server — automatic)
+# Step 2 — Install all dependencies (root + client + server)
 npm install
+npm run setup
 
 # Step 3 — Start the app (frontend + backend together)
 npm run dev
