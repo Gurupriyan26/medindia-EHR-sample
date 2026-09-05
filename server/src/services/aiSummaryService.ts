@@ -84,7 +84,7 @@ Do not diagnose new conditions or prescribe drugs.`;
     throw new Error(`OpenAI HTTP error ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = await response.json() as any;
   const parsed = JSON.parse(data.choices[0].message.content);
 
   return {

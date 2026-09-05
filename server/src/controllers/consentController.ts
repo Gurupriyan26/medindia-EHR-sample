@@ -1,12 +1,23 @@
 import { Request, Response } from 'express';
 import { ConsentModel } from '../models/Consent.js';
+import { isMongoConnected, MOCK_CONSENTS } from '../data/mockFallback.js';
+
+// In-memory store for demo-mode consent mutations
+let mockConsents = [...MOCK_CONSENTS];
 
 // Get consent records (filter by patientId)
 export async function getConsents(req: Request, res: Response) {
   try {
+    if (!isMongoConnected()) {
+      const { patientId, status } = req.query;
+      let results = [...mockConsents];
+      if (patientId) results = results.filter(c => c.patientId === patientId);
+      if (status) results = results.filter(c => c.status === status);
+      return res.json(results);
+    }
+
     const { patientId, status } = req.query;
     const query: any = {};
-
     if (patientId) query.patientId = patientId;
     if (status) query.status = status;
 
@@ -21,32 +32,37 @@ export async function getConsents(req: Request, res: Response) {
 export async function createConsent(req: Request, res: Response) {
   try {
     const {
-      patientId,
-      patientName,
-      patientAbhaId,
-      requesterName,
-      requesterType,
-      purpose,
-      dataTypes,
-      permissionMode,
-      dateFrom,
-      dateTo,
-      expiryDate,
+      patientId, patientName, patientAbhaId, requesterName, requesterType,
+      purpose, dataTypes, permissionMode, dateFrom, dateTo, expiryDate,
     } = req.body;
 
     if (!patientId || !requesterName || !purpose) {
-      return res.status(400).json({
-        error: 'Missing required consent fields: patientId, requesterName, purpose',
-      });
+      return res.status(400).json({ error: 'Missing required consent fields: patientId, requesterName, purpose' });
+    }
+
+    if (!isMongoConnected()) {
+      const mockConsent = {
+        _id: `consent-mock-${Date.now()}`,
+        id: `consent-mock-${Date.now()}`,
+        patientId, patientName, patientAbhaId, requesterName,
+        requesterType: requesterType || 'Doctor', purpose,
+        dataTypes: dataTypes || ['EHR / Consultations', 'Prescriptions', 'Diagnostic Lab Reports'],
+        permissionMode: permissionMode || 'VIEW',
+        dateFrom: dateFrom || new Date().toISOString().split('T')[0],
+        dateTo: dateTo || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        expiryDate: expiryDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        status: 'GRANTED',
+        grantedAt: new Date().toISOString(),
+        signatureMock: `ECDSA-SHA256:mock${Date.now()}`,
+        createdAt: new Date().toISOString(),
+      };
+      mockConsents = [mockConsent, ...mockConsents];
+      return res.status(201).json(mockConsent);
     }
 
     const newConsent = new ConsentModel({
-      patientId,
-      patientName,
-      patientAbhaId,
-      requesterName,
-      requesterType: requesterType || 'Doctor',
-      purpose,
+      patientId, patientName, patientAbhaId, requesterName,
+      requesterType: requesterType || 'Doctor', purpose,
       dataTypes: dataTypes || ['EHR / Consultations', 'Prescriptions', 'Diagnostic Lab Reports'],
       permissionMode: permissionMode || 'VIEW',
       dateFrom: dateFrom || new Date().toISOString().split('T')[0],
@@ -73,19 +89,24 @@ export async function updateConsentStatus(req: Request, res: Response) {
       return res.status(400).json({ error: 'Invalid consent status' });
     }
 
-    const updatePayload: any = { status };
-    if (status === 'REVOKED') {
-      updatePayload.revokedAt = new Date().toISOString();
-    } else if (status === 'GRANTED') {
-      updatePayload.grantedAt = new Date().toISOString();
+    if (!isMongoConnected()) {
+      const idx = mockConsents.findIndex(c => c._id === id);
+      if (idx === -1) return res.status(404).json({ error: 'Consent artefact not found' });
+      mockConsents[idx] = {
+        ...mockConsents[idx],
+        status,
+        ...(status === 'REVOKED' ? { revokedAt: new Date().toISOString() } : {}),
+        ...(status === 'GRANTED' ? { grantedAt: new Date().toISOString() } : {}),
+      };
+      return res.json(mockConsents[idx]);
     }
+
+    const updatePayload: any = { status };
+    if (status === 'REVOKED') updatePayload.revokedAt = new Date().toISOString();
+    else if (status === 'GRANTED') updatePayload.grantedAt = new Date().toISOString();
 
     const updated = await ConsentModel.findByIdAndUpdate(id, updatePayload, { new: true });
-
-    if (!updated) {
-      return res.status(404).json({ error: 'Consent artefact not found' });
-    }
-
+    if (!updated) return res.status(404).json({ error: 'Consent artefact not found' });
     res.json(updated);
   } catch (error: any) {
     res.status(400).json({ error: 'Failed to update consent status', details: error.message });
