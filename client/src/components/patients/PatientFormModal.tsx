@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '../common/Modal';
 import { Patient, Allergy, ChronicCondition, BloodGroup, Gender } from '../../types';
-import { Plus, Trash2, Sparkles, Shield, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Sparkles, Shield, AlertCircle, HeartHandshake, FileText } from 'lucide-react';
+import { EasyAbhaOnboarding } from './EasyAbhaOnboarding';
 
 interface PatientFormModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
   onSave,
   initialData,
 }) => {
+  const [registrationMode, setRegistrationMode] = useState<'easy' | 'clinical'>('easy');
   const [name, setName] = useState('');
   const [age, setAge] = useState<number | ''>('');
   const [gender, setGender] = useState<Gender>('Male');
@@ -165,42 +167,92 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={initialData ? 'Edit Patient EHR Record' : 'Enroll New Patient in EHR'}
-      subtitle="Universal Health Identifier (ABHA) & Clinical Demographics"
+      title={initialData ? 'Edit Patient EHR Record' : 'Create Patient Account & ABHA'}
+      subtitle={
+        initialData
+          ? 'Universal Health Identifier (ABHA) & Clinical Demographics'
+          : 'National Digital Health Ecosystem (ABDM) Onboarding'
+      }
       maxWidth="3xl"
       footer={
-        <>
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="px-5 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
-          >
-            {isSubmitting ? 'Saving...' : initialData ? 'Save Changes' : 'Register & Create EHR'}
-          </button>
-        </>
+        registrationMode === 'easy' && !initialData ? null : (
+          <>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="px-5 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+            >
+              {isSubmitting ? 'Saving...' : initialData ? 'Save Changes' : 'Register & Create EHR'}
+            </button>
+          </>
+        )
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {errors.form && (
-          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span>{errors.form}</span>
-          </div>
-        )}
+      {/* Mode Switcher for New Patient Registration */}
+      {!initialData && (
+        <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-2xl mb-6 border border-slate-200">
+          <button
+            type="button"
+            onClick={() => setRegistrationMode('easy')}
+            className={`py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+              registrationMode === 'easy'
+                ? 'bg-white text-brand-700 shadow-md ring-1 ring-slate-200/80'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <HeartHandshake className="w-4 h-4 text-emerald-600" />
+            <span>🌟 Easy Assisted Mode (सरल ABHA)</span>
+            <span className="hidden sm:inline px-1.5 py-0.5 text-[9px] bg-emerald-100 text-emerald-800 rounded font-bold">
+              Voice / Multi-lang
+            </span>
+          </button>
 
-        {/* Section 1: Demographics */}
-        <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
-            1. Core Demographics
-          </h4>
+          <button
+            type="button"
+            onClick={() => setRegistrationMode('clinical')}
+            className={`py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+              registrationMode === 'clinical'
+                ? 'bg-white text-brand-700 shadow-md ring-1 ring-slate-200/80'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <FileText className="w-4 h-4 text-brand-600" />
+            <span>📋 Full Clinical Form (विस्तृत)</span>
+          </button>
+        </div>
+      )}
+
+      {registrationMode === 'easy' && !initialData ? (
+        <EasyAbhaOnboarding
+          onComplete={async data => {
+            await onSave(data);
+            onClose();
+          }}
+          onCancel={onClose}
+          onSwitchToClinical={() => setRegistrationMode('clinical')}
+        />
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {errors.form && (
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{errors.form}</span>
+            </div>
+          )}
+
+          {/* Section 1: Demographics */}
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
+              1. Core Demographics
+            </h4>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-2">
               <label className="block text-xs font-semibold text-slate-700 mb-1">
@@ -457,6 +509,7 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
           </div>
         </div>
       </form>
-    </Modal>
+    )}
+  </Modal>
   );
 };

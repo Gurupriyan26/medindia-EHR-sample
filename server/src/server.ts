@@ -59,7 +59,7 @@ async function startServer() {
     app.listen(Number(PORT), '0.0.0.0', () => {
       console.log(`🚀 MedIndia EHR API Server running on port ${PORT}`);
       console.log(`📊 Health Endpoint: http://localhost:${PORT}/api/health`);
-      console.log(`🌐 Network Access:  http://10.205.178.139:${PORT}/api/health`);
+      console.log(`🌐 Network Access:  http://10.148.142.139:${PORT}/api/health`);
     });
   }
 }

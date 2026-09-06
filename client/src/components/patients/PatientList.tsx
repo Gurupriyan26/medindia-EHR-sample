@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Patient, BloodGroup, Gender } from '../../types';
 import { Badge } from '../common/Badge';
+import { Modal } from '../common/Modal';
+import { AbhaHealthCard } from '../common/AbhaHealthCard';
 import {
   Search,
   Filter,
@@ -14,7 +16,9 @@ import {
   Phone,
   Calendar,
   Shield,
+  ShieldCheck,
   CheckCircle2,
+  QrCode,
 } from 'lucide-react';
 
 interface PatientListProps {
@@ -38,6 +42,7 @@ export const PatientList: React.FC<PatientListProps> = ({
   const [genderFilter, setGenderFilter] = useState<string>('all');
   const [bloodGroupFilter, setBloodGroupFilter] = useState<string>('all');
   const [allergyOnly, setAllergyOnly] = useState<boolean>(false);
+  const [viewingCardPatient, setViewingCardPatient] = useState<Patient | null>(null);
 
   // Filter logic
   const filteredPatients = patients.filter(patient => {
@@ -276,6 +281,13 @@ export const PatientList: React.FC<PatientListProps> = ({
                       <td className="px-5 py-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
+                            onClick={() => setViewingCardPatient(p)}
+                            className="p-1.5 text-sky-700 hover:bg-sky-50 rounded-lg border border-sky-200 transition-colors"
+                            title="View / Print Digital ABHA Health Card"
+                          >
+                            <QrCode className="w-3.5 h-3.5" />
+                          </button>
+                          <button
                             onClick={() => openAiSummaryModal(p._id || p.id || '')}
                             className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg border border-indigo-200 transition-colors"
                             title="Generate AI Clinical Summary"
@@ -313,6 +325,24 @@ export const PatientList: React.FC<PatientListProps> = ({
           </table>
         </div>
       </div>
+
+      {/* ABHA Health Card Modal */}
+      {viewingCardPatient && (
+        <Modal
+          isOpen={Boolean(viewingCardPatient)}
+          onClose={() => setViewingCardPatient(null)}
+          title="National Digital Health Card (ABHA)"
+          subtitle={`Official Ayushman Bharat Digital ID for ${viewingCardPatient.name}`}
+          maxWidth="lg"
+        >
+          <div className="py-2">
+            <AbhaHealthCard
+              patient={viewingCardPatient}
+              onClose={() => setViewingCardPatient(null)}
+            />
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };

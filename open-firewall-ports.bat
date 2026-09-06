@@ -10,6 +10,6 @@ netsh advfirewall firewall delete rule name="MedIndia Server 5000" >nul 2>&1
 netsh advfirewall firewall add rule name="MedIndia Server 5000" dir=in action=allow protocol=TCP localport=5000
 echo Port 5000 done.
 echo.
-echo Open on your phone: http://10.205.178.139:5173
+echo Open on your phone: http://10.148.142.139:5173
 echo.
 pause

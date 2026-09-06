@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Patient, Visit, LabReport, ConsentArtefact, TimelineEvent } from '../../types';
 import { Badge } from '../common/Badge';
+import { Modal } from '../common/Modal';
+import { AbhaHealthCard } from '../common/AbhaHealthCard';
 import { ClinicalTimeline } from './ClinicalTimeline';
 import {
   Shield,
@@ -24,6 +26,7 @@ import {
   ChevronRight,
   ShieldCheck,
   AlertCircle,
+  Printer,
 } from 'lucide-react';
 
 interface PatientEHRProfileProps {
@@ -49,6 +52,7 @@ export const PatientEHRProfile: React.FC<PatientEHRProfileProps> = ({
   const [activeSubTab, setActiveSubTab] = useState<
     'overview' | 'timeline' | 'visits' | 'medications' | 'labs' | 'consent'
   >('overview');
+  const [isCardModalOpen, setIsCardModalOpen] = useState(false);
 
   if (!selectedPatient) {
     return (
@@ -285,6 +289,13 @@ export const PatientEHRProfile: React.FC<PatientEHRProfileProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsCardModalOpen(true)}
+              className="px-3 py-2 bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 rounded-xl text-xs font-semibold shadow-2xs transition-all flex items-center gap-1.5"
+            >
+              <Printer className="w-3.5 h-3.5 text-sky-600" />
+              <span>Print Health Card</span>
+            </button>
             <button
               onClick={onOpenLabModal}
               className="px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-2xs transition-all flex items-center gap-1.5"
@@ -779,6 +790,24 @@ export const PatientEHRProfile: React.FC<PatientEHRProfileProps> = ({
             </div>
           )}
         </div>
+      )}
+
+      {/* ABHA Digital Health Card Modal */}
+      {isCardModalOpen && (
+        <Modal
+          isOpen={isCardModalOpen}
+          onClose={() => setIsCardModalOpen(false)}
+          title="National Digital Health Card (ABHA)"
+          subtitle={`Official Ayushman Bharat Digital ID for ${selectedPatient.name}`}
+          maxWidth="lg"
+        >
+          <div className="py-2">
+            <AbhaHealthCard
+              patient={selectedPatient}
+              onClose={() => setIsCardModalOpen(false)}
+            />
+          </div>
+        </Modal>
       )}
     </div>
   );
